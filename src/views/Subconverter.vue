@@ -4,106 +4,217 @@
       <el-col>
         <el-card>
           <div slot="header">
-            Subscription Converter
-            <svg-icon icon-class="github" style="margin-left: 20px" @click="goToProject" />
+            订阅转换
 
-            <div style="display: inline-block; position:absolute; right: 20px">{{ backendVersion }}</div>
+            <div style="display: inline-block; position: absolute; right: 20px">
+              {{ backendVersion }} 
+            </div>
           </div>
           <el-container>
-            <el-form :model="form" label-width="140px" label-position="left" style="width: 100%">
+            <el-form
+              :model="form"
+              label-width="140px"
+              label-position="right"
+              style="width: 100%"
+            >
               <el-form-item label="模式设置:">
                 <el-radio v-model="advanced" label="1">基础模式</el-radio>
                 <el-radio v-model="advanced" label="2">进阶模式</el-radio>
               </el-form-item>
               <el-form-item label="订阅链接:">
-                <el-input v-model="form.sourceSubUrl" type="textarea" rows="3"
-                  placeholder="支持订阅或ss/ssr/vmess链接，多个链接每行一个或用 | 分隔" @blur="saveSubUrl" />
+                <el-input
+                  v-model="form.sourceSubUrl"
+                  type="textarea"
+                  rows="3"
+                  placeholder="支持订阅或ss/ssr/vmess链接，多个链接每行一个或用 | 分隔"
+                  @blur="saveSubUrl"
+                />
               </el-form-item>
               <el-form-item label="客户端:">
                 <el-select v-model="form.clientType" style="width: 100%">
-                  <el-option v-for="(v, k) in options.clientTypes" :key="k" :label="k" :value="v"></el-option>
+                  <el-option
+                    v-for="(v, k) in options.clientTypes"
+                    :key="k"
+                    :label="k"
+                    :value="v"
+                  ></el-option>
                 </el-select>
               </el-form-item>
 
-              <div v-if="advanced === '2'">
                 <el-form-item label="后端地址:">
-                  <el-autocomplete style="width: 100%" v-model="form.customBackend" :fetch-suggestions="backendSearch"
-                    placeholder="动动小手，（建议）自行搭建后端服务。例：http://127.0.0.1:25500/sub?">
-                    <el-button slot="append" @click="gotoGayhub" icon="el-icon-link">前往项目仓库</el-button>
-                  </el-autocomplete>
-                </el-form-item>
-                <el-form-item label="远程配置:">
-                  <el-select v-model="form.remoteConfig" allow-create filterable placeholder="请选择" style="width: 100%">
-                    <el-option-group v-for="group in options.remoteConfig" :key="group.label" :label="group.label">
-                      <el-option v-for="item in group.options" :key="item.value" :label="item.label"
-                        :value="item.value"></el-option>
-                    </el-option-group>
-                    <el-button slot="append" @click="gotoRemoteConfig" icon="el-icon-link">配置示例</el-button>
+                  <el-select
+                    v-model="form.customBackend"
+                    :fetch-suggestions="backendSearch"
+                    style="width: 100%"
+                  >
+                    <el-option
+                      v-for="item in options.backendOptions"
+                      :key="item.label"
+                      :label="item.label"
+                      :value="item.value"
+                    ></el-option>
                   </el-select>
                 </el-form-item>
-                <el-form-item label="Include:">
-                  <el-input v-model="form.includeRemarks" placeholder="节点名包含的关键字，支持正则" />
+                <el-form-item label="订阅转换规则:">
+                  <el-select
+                    v-model="form.remoteConfig"
+                    allow-create
+                    filterable
+                    placeholder="请选择"
+                    style="width: 100%"
+                  >
+                    <el-option-group
+                      v-for="group in options.remoteConfig"
+                      :key="group.label"
+                      :label="group.label"
+                    >
+                      <el-option
+                        v-for="item in group.options"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                      ></el-option>
+                    </el-option-group>
+                    <el-button
+                      slot="append"
+                      @click="gotoRemoteConfig"
+                      icon="el-icon-link"
+                      >配置示例</el-button
+                    >
+                  </el-select>
                 </el-form-item>
-                <el-form-item label="Exclude:">
-                  <el-input v-model="form.excludeRemarks" placeholder="节点名不包含的关键字，支持正则" />
+              <div v-if="advanced === '2'">
+                <el-form-item label="筛选节点:">
+                  <el-input
+                    v-model="form.includeRemarks"
+                    placeholder="节点名包含的关键字，支持正则"
+                  />
                 </el-form-item>
-                <el-form-item label="FileName:">
-                  <el-input v-model="form.filename" placeholder="返回的订阅文件名" />
+                <el-form-item label="排除节点:">
+                  <el-input
+                    v-model="form.excludeRemarks"
+                    placeholder="节点名不包含的关键字，支持正则"
+                  />
+                </el-form-item>
+                <el-form-item label="文件名:">
+                  <el-input
+                    v-model="form.filename"
+                    placeholder="返回转换后的订阅文件名"
+                  />
                 </el-form-item>
 
                 <el-form-item v-for="(param, i) in customParams" :key="i">
-                  <el-input slot="label" v-model="param.name" placeholder="自定义参数名">
-                    <div slot="suffix" style="width: 10px;">:</div>
+                  <el-input
+                    slot="label"
+                    v-model="param.name"
+                    placeholder="自定义参数名"
+                  >
+                    <div slot="suffix" style="width: 10px">:</div>
                   </el-input>
                   <el-input v-model="param.value" placeholder="自定义参数内容">
-                      <el-button slot="suffix" type="text" icon="el-icon-delete" style="margin-right: 5px" @click="customParams.splice(i, 1)"/>
+                    <el-button
+                      slot="suffix"
+                      type="text"
+                      icon="el-icon-delete"
+                      style="margin-right: 5px"
+                      @click="customParams.splice(i, 1)"
+                    />
                   </el-input>
                 </el-form-item>
 
                 <el-form-item label-width="0px">
                   <el-row type="flex">
                     <el-col>
-                      <el-checkbox v-model="form.nodeList" label="输出为 Node List" border></el-checkbox>
+                      <el-checkbox
+                        v-model="form.nodeList"
+                        label="输出为 Node List"
+                        border
+                      ></el-checkbox>
                     </el-col>
                     <el-popover placement="bottom" v-model="form.extraset">
                       <el-row>
-                        <el-checkbox v-model="form.emoji" label="Emoji"></el-checkbox>
+                        <el-checkbox
+                          v-model="form.emoji"
+                          label="添加 Emoji"
+                        ></el-checkbox>
                       </el-row>
                       <el-row>
-                        <el-checkbox v-model="form.scv" label="跳过证书验证"></el-checkbox>
+                        <el-checkbox
+                          v-model="form.fdn"
+                          label="过滤非法节点"
+                        ></el-checkbox>
                       </el-row>
                       <el-row>
-                        <el-checkbox v-model="form.udp" @change="needUdp = true" label="启用 UDP"></el-checkbox>
+                        <el-checkbox
+                          v-model="form.udp"
+                          @change="needUdp = true"
+                          label="UDP 支持"
+                        ></el-checkbox>
                       </el-row>
                       <el-row>
-                        <el-checkbox v-model="form.appendType" label="节点类型"></el-checkbox>
+                        <el-checkbox
+                          v-model="form.scv"
+                          label="跳过证书验证"
+                        ></el-checkbox>
                       </el-row>
                       <el-row>
-                        <el-checkbox v-model="form.sort" label="排序节点"></el-checkbox>
+                        <el-checkbox
+                          v-model="form.sort"
+                          label="排序"
+                        ></el-checkbox>
                       </el-row>
                       <el-row>
-                        <el-checkbox v-model="form.fdn" label="过滤非法节点"></el-checkbox>
+                        <el-checkbox
+                          v-model="form.appendType"
+                          label="插入节点类型"
+                        ></el-checkbox>
                       </el-row>
                       <el-row>
-                        <el-checkbox v-model="form.expand" label="规则展开"></el-checkbox>
+                        <el-checkbox
+                          v-model="form.expand"
+                          label="使用规则集"
+                        ></el-checkbox>
                       </el-row>
                       <el-button slot="reference">更多选项</el-button>
                     </el-popover>
                     <el-popover placement="bottom" style="margin-left: 10px">
                       <el-row>
-                        <el-checkbox v-model="form.tpl.surge.doh" label="Surge.DoH"></el-checkbox>
+                        <el-checkbox
+                          v-model="form.tpl.surge.doh"
+                          label="Surge.DoH"
+                        ></el-checkbox>
                       </el-row>
                       <el-row>
-                        <el-checkbox v-model="form.tpl.clash.doh" label="Clash.DoH"></el-checkbox>
+                        <el-checkbox
+                          v-model="form.tpl.clash.doh"
+                          label="Clash.DoH"
+                        ></el-checkbox>
                       </el-row>
                       <el-row>
-                        <el-checkbox v-model="form.insert" label="网易云"></el-checkbox>
+                        <el-checkbox
+                          v-model="form.insert"
+                          label="网易云"
+                        ></el-checkbox>
                       </el-row>
                       <el-button slot="reference">定制功能</el-button>
                     </el-popover>
-                    <el-popover placement="top-end" title="添加自定义转换参数" trigger="hover">
-                      <el-link type="primary" :href="subDocAdvanced" target="_blank" icon="el-icon-info">参考文档</el-link>
-                      <el-button slot="reference" @click="addCustomParam" style="margin-left: 10px">
+                    <el-popover
+                      placement="top-end"
+                      title="添加自定义转换参数"
+                      trigger="hover"
+                    >
+                      <el-link
+                        type="primary"
+                        :href="subDocAdvanced"
+                        target="_blank"
+                        icon="el-icon-info"
+                        >参考文档</el-link
+                      >
+                      <el-button
+                        slot="reference"
+                        @click="addCustomParam"
+                        style="margin-left: 10px"
+                      >
                         <i class="el-icon-plus"></i>
                       </el-button>
                     </el-popover>
@@ -119,34 +230,82 @@
 
               <el-form-item label="定制订阅:">
                 <el-input class="copy-content" disabled v-model="customSubUrl">
-                  <el-button slot="append" v-clipboard:copy="customSubUrl" v-clipboard:success="onCopy" ref="copy-btn"
-                    icon="el-icon-document-copy">复制</el-button>
+                  <el-button
+                    slot="append"
+                    v-clipboard:copy="customSubUrl"
+                    v-clipboard:success="onCopy"
+                    ref="copy-btn"
+                    icon="el-icon-document-copy"
+                    >复制</el-button
+                  >
                 </el-input>
               </el-form-item>
               <el-form-item label="订阅短链:">
-                <el-input class="copy-content" disabled v-model="curtomShortSubUrl">
-                  <el-button slot="append" v-clipboard:copy="curtomShortSubUrl" v-clipboard:success="onCopy"
-                    ref="copy-btn" icon="el-icon-document-copy">复制</el-button>
+                <el-input
+                  class="copy-content"
+                  disabled
+                  v-model="curtomShortSubUrl"
+                >
+                  <el-button
+                    slot="append"
+                    v-clipboard:copy="curtomShortSubUrl"
+                    v-clipboard:success="onCopy"
+                    ref="copy-btn"
+                    icon="el-icon-document-copy"
+                    >复制</el-button
+                  >
                 </el-input>
               </el-form-item>
 
-              <el-form-item label-width="0px" style="margin-top: 40px; text-align: center">
-                <el-button style="width: 140px" type="danger" @click="makeUrl"
-                  :disabled="form.sourceSubUrl.length === 0">生成订阅链接</el-button>
-                <el-button style="width: 140px" type="danger" @click="makeShortUrl" :loading="loading"
-                  :disabled="customSubUrl.length === 0">生成短链接</el-button>
+              <el-form-item
+                label-width="0px"
+                style="margin-top: 40px; text-align: center"
+              >
+                <el-button
+                  style="width: 140px"
+                  type="danger"
+                  @click="makeUrl"
+                  :disabled="form.sourceSubUrl.length === 0"
+                  >生成订阅链接</el-button
+                >
+                <el-button
+                  style="width: 140px"
+                  type="danger"
+                  @click="makeShortUrl"
+                  :loading="loading"
+                  :disabled="customSubUrl.length === 0"
+                  >生成短链接</el-button
+                >
                 <!-- <el-button style="width: 140px" type="primary" @click="surgeInstall" icon="el-icon-connection">一键导入Surge</el-button> -->
               </el-form-item>
 
               <el-form-item label-width="0px" style="text-align: center">
-                <el-button style="width: 140px" type="primary" @click="dialogUploadConfigVisible = true"
-                  icon="el-icon-upload" :loading="loading">上传配置</el-button>
-                <el-button style="width: 140px" type="primary" @click="clashInstall" icon="el-icon-connection"
-                  :disabled="customSubUrl.length === 0">一键导入 Clash</el-button>
+                <el-button
+                  style="width: 140px"
+                  type="primary"
+                  @click="dialogUploadConfigVisible = true"
+                  icon="el-icon-upload"
+                  :loading="loading"
+                  >上传配置</el-button
+                >
+                <el-button
+                  style="width: 140px"
+                  type="primary"
+                  @click="clashInstall"
+                  icon="el-icon-connection"
+                  :disabled="customSubUrl.length === 0"
+                  >一键导入 Clash</el-button
+                >
               </el-form-item>
               <el-form-item label-width="0px" style="text-align: center">
-                <el-button style="width: 290px" type="primary" @click="dialogLoadConfigVisible = true"
-                  icon="el-icon-copy-document" :loading="loading">从 URL 解析</el-button>
+                <el-button
+                  style="width: 290px"
+                  type="primary"
+                  @click="dialogLoadConfigVisible = true"
+                  icon="el-icon-copy-document"
+                  :loading="loading"
+                  >从 URL 解析</el-button
+                >
               </el-form-item>
             </el-form>
           </el-container>
@@ -154,61 +313,102 @@
       </el-col>
     </el-row>
 
-    <el-dialog :visible.sync="dialogUploadConfigVisible" :show-close="false" :close-on-click-modal="false"
-      :close-on-press-escape="false" width="700px">
+    <el-dialog
+      :visible.sync="dialogUploadConfigVisible"
+      :show-close="false"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      width="700px"
+    >
       <div slot="title">
         Remote config upload
         <el-popover trigger="hover" placement="right" style="margin-left: 10px">
-          <el-link type="primary" :href="sampleConfig" target="_blank" icon="el-icon-info">参考配置</el-link>
+          <el-link
+            type="primary"
+            :href="sampleConfig"
+            target="_blank"
+            icon="el-icon-info"
+            >参考配置</el-link
+          >
           <i class="el-icon-question" slot="reference"></i>
         </el-popover>
       </div>
       <el-form label-position="left">
         <el-form-item prop="uploadConfig">
-          <el-input v-model="uploadConfig" type="textarea" :autosize="{ minRows: 15, maxRows: 30 }" maxlength="10000"
-            show-word-limit></el-input>
+          <el-input
+            v-model="uploadConfig"
+            type="textarea"
+            :autosize="{ minRows: 15, maxRows: 30 }"
+            maxlength="10000"
+            show-word-limit
+          ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="uploadConfig = ''; dialogUploadConfigVisible = false">取 消</el-button>
-        <el-button type="primary" @click="confirmUploadConfig" :disabled="uploadConfig.length === 0">确 定</el-button>
+        <el-button
+          @click="
+            uploadConfig = '';
+            dialogUploadConfigVisible = false;
+          "
+          >取 消</el-button
+        >
+        <el-button
+          type="primary"
+          @click="confirmUploadConfig"
+          :disabled="uploadConfig.length === 0"
+          >确 定</el-button
+        >
       </div>
     </el-dialog>
 
-    <el-dialog :visible.sync="dialogLoadConfigVisible" :show-close="false" :close-on-click-modal="false"
-      :close-on-press-escape="false" width="700px">
-      <div slot="title">
-        解析 Subconverter 链接
-      </div>
-      <el-form label-position="left" :inline="true" >
+    <el-dialog
+      :visible.sync="dialogLoadConfigVisible"
+      :show-close="false"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      width="700px"
+    >
+      <div slot="title">解析 Subconverter 链接</div>
+      <el-form label-position="left" :inline="true">
         <el-form-item prop="uploadConfig" label="订阅链接：" label-width="85px">
           <el-input v-model="loadConfig" style="width: 565px"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="loadConfig = ''; dialogLoadConfigVisible = false">取 消</el-button>
-        <el-button type="primary" @click="confirmLoadConfig" :disabled="loadConfig.length === 0">确 定</el-button>
+        <el-button
+          @click="
+            loadConfig = '';
+            dialogLoadConfigVisible = false;
+          "
+          >取 消</el-button
+        >
+        <el-button
+          type="primary"
+          @click="confirmLoadConfig"
+          :disabled="loadConfig.length === 0"
+          >确 定</el-button
+        >
       </div>
     </el-dialog>
-
   </div>
 </template>
 
 <script>
-const project = process.env.VUE_APP_PROJECT
-const remoteConfigSample = process.env.VUE_APP_SUBCONVERTER_REMOTE_CONFIG
-const subDocAdvanced = process.env.VUE_APP_SUBCONVERTER_DOC_ADVANCED
-const gayhubRelease = process.env.VUE_APP_BACKEND_RELEASE
-const defaultBackend = process.env.VUE_APP_SUBCONVERTER_DEFAULT_BACKEND + '/sub?'
-const shortUrlBackend = process.env.VUE_APP_MYURLS_API
-const configUploadBackend = process.env.VUE_APP_CONFIG_UPLOAD_API
-const tgBotLink = process.env.VUE_APP_BOT_LINK
+const project = process.env.VUE_APP_PROJECT;
+const remoteConfigSample = process.env.VUE_APP_SUBCONVERTER_REMOTE_CONFIG;
+const subDocAdvanced = process.env.VUE_APP_SUBCONVERTER_DOC_ADVANCED;
+const gayhubRelease = process.env.VUE_APP_BACKEND_RELEASE;
+const defaultBackend =
+  process.env.VUE_APP_SUBCONVERTER_DEFAULT_BACKEND + "/sub?";
+const shortUrlBackend = process.env.VUE_APP_MYURLS_API;
+const configUploadBackend = process.env.VUE_APP_CONFIG_UPLOAD_API;
+const tgBotLink = process.env.VUE_APP_BOT_LINK;
 
 export default {
   data() {
     return {
       backendVersion: "",
-      advanced: "2",
+      advanced: "1",
 
       // 是否为 PC 端
       isPC: true,
@@ -227,84 +427,265 @@ export default {
           ssd: "ssd",
           sssub: "sssub",
           ssr: "ssr",
-          ClashR: "clashr",          
+          ClashR: "clashr",
           V2Ray: "v2ray",
           Trojan: "trojan",
           Surge3: "surge&ver=3",
         },
-        backendOptions: [{ value: "http://127.0.0.1:25500/sub?" }],
+        backendOptions: [
+          {
+            label: "api.wcc.best(sub-web作者提供)",
+            value: "https://api.wcc.best/sub?",
+          },
+          {
+            label: "sub.xeton.dev(subconverter作者提供)",
+            value: "https://sub.xeton.dev/sub?",
+          },
+          {
+            label: "api.dler.io(lhie1提供)",
+            value: "https://api.dler.io/sub?",
+          },
+          {
+            label: "api.asailor.org(Aethersailor提供)",
+            value: "https://api.asailor.org/sub?",
+          },
+          {
+            label: "localhost(本地后端)",
+            value: "https://localhost:25500/sub?",
+          },
+        ],
         remoteConfig: [
           {
-            label: "universal",
+            label: "Universal",
             options: [
               {
                 label: "No-Urltest",
                 value:
-                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/universal/no-urltest.ini"
+                  "https://raw.githubusercontent.com//SleepyHeeead/subconverter-config/master/remote-config/universal/no-urltest.ini",
               },
               {
                 label: "Urltest",
                 value:
-                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/universal/urltest.ini"
-              }
-            ]
+                  "https://raw.githubusercontent.com//SleepyHeeead/subconverter-config/master/remote-config/universal/urltest.ini",
+              },
+            ],
           },
           {
-            label: "customized",
+            label: "ACL4SSR",
             options: [
               {
-                label: "Maying",
+                label: "ACL4SSR 规则标准版",
                 value:
-                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/customized/maying.ini"
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR.ini",
               },
               {
-                label: "Ytoo",
+                label: "ACL4SSR 规则 AdblockPlus",
                 value:
-                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/customized/ytoo.ini"
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_AdblockPlus.ini",
               },
               {
-                label: "FlowerCloud",
+                label: "ACL4SSR 规则 BackCN",
                 value:
-                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/customized/flowercloud.ini"
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_BackCN.ini",
               },
               {
-                label: "Nexitally",
+                label: "ACL4SSR 规则 Mini",
                 value:
-                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/customized/nexitally.ini"
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Mini.ini",
               },
               {
-                label: "SoCloud",
+                label: "ACL4SSR 规则 Mini Fallback",
                 value:
-                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/customized/socloud.ini"
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Mini_Fallback.ini",
               },
               {
-                label: "ARK",
+                label: "ACL4SSR 规则 Mini MultiMode",
                 value:
-                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/customized/ark.ini"
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Mini_MultiMode.ini",
               },
               {
-                label: "ssrCloud",
+                label: "ACL4SSR 规则 Mini NoAuto",
                 value:
-                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/customized/ssrcloud.ini"
-              }
-            ]
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Mini_NoAuto.ini",
+              },
+              {
+                label: "ACL4SSR 规则 NoApple",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_NoApple.ini",
+              },
+              {
+                label: "ACL4SSR 规则 NoAuto",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_NoAuto.ini",
+              },
+              {
+                label: "ACL4SSR 规则 NoAuto NoApple",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_NoAuto_NoApple.ini",
+              },
+              {
+                label: "ACL4SSR 规则 NoAuto NoApple NoMicrosoft",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_NoAuto_NoApple_NoMicrosoft.ini",
+              },
+              {
+                label: "ACL4SSR 规则 NoMicrosoft",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_NoMicrosoft.ini",
+              },
+              {
+                label: "ACL4SSR 规则 Online",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online.ini",
+              },
+              {
+                label: "ACL4SSR 规则 Online AdblockPlus",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_AdblockPlus.ini",
+              },
+              {
+                label: "ACL4SSR 规则 Online Full",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Full.ini",
+              },
+              {
+                label: "ACL4SSR 规则 Online Full AdblockPlus",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Full_AdblockPlus.ini",
+              },
+              {
+                label: "ACL4SSR 规则 Online Full Google",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Full_Google.ini",
+              },
+              {
+                label: "ACL4SSR 规则 Online Full MultiMode",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Full_MultiMode.ini",
+              },
+              {
+                label: "ACL4SSR 规则 Online Full Netflix",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Full_Netflix.ini",
+              },
+              {
+                label: "ACL4SSR 规则 Online Full NoAuto",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Full_NoAuto.ini",
+              },
+              {
+                label: "ACL4SSR 规则 Online Mini",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Mini.ini",
+              },
+              {
+                label: "ACL4SSR 规则 Online Mini AdblockPlus",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Mini_AdblockPlus.ini",
+              },
+              {
+                label: "ACL4SSR 规则 Online Mini Fallback",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Mini_Fallback.ini",
+              },
+              {
+                label: "ACL4SSR 规则 Online Mini MultiCountry",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Mini_MultiCountry.ini",
+              },
+              {
+                label: "ACL4SSR 规则 Online Mini MultiMode",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Mini_MultiMode.ini",
+              },
+              {
+                label: "ACL4SSR 规则 Online Mini NoAuto",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Mini_NoAuto.ini",
+              },
+              {
+                label: "ACL4SSR 规则 Online MultiCountry",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_MultiCountry.ini",
+              },
+              {
+                label: "ACL4SSR 规则 Online NoAuto",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_NoAuto.ini",
+              },
+              {
+                label: "ACL4SSR 规则 Online NoReject",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_NoReject.ini",
+              },
+              {
+                label: "ACL4SSR 规则 WithChinaIp",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_WithChinaIp.ini",
+              },
+              {
+                label: "ACL4SSR 规则 WithChinaIp WithGFW",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_WithChinaIp_WithGFW.ini",
+              },
+              {
+                label: "ACL4SSR 规则 WithGFW",
+                value:
+                  "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_WithGFW.ini",
+              },
+            ],
           },
           {
-            label: "Special",
+            label: "Aethersailor",
             options: [
               {
-                label: "NeteaseUnblock(仅规则，No-Urltest)",
+                label: "Aethersailor 规则 标准版 Custom_Clash",
                 value:
-                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/special/netease.ini"
+                  "https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/Custom_Clash.ini",
               },
               {
-                label: "Basic(仅GEOIP CN + Final)",
+                label: "Aethersailor 规则 轻量版 Custom_Clash_Lite",
                 value:
-                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/special/basic.ini"
-              }
-            ]
-          }
-        ]
+                  "https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/Custom_Clash_Lite.ini",
+              },
+              {
+                label: "Aethersailor 规则 极简版(GFW) Custom_Clash_GFW",
+                value:
+                  "https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/Custom_Clash_GFW.ini",
+              },
+              {
+                label: "Aethersailor 规则 重度分流版 Custom_Clash_Full",
+                value:
+                  "https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/Custom_Clash_Full.ini",
+              },
+            ],
+          },
+          {
+            label: "Aethersailor Smart",
+            options: [
+              {
+                label: "Aethersailor 规则 标准版 Custom_Clash_Smart",
+                value:
+                  "https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/attic/Custom_Clash_Smart.ini",
+              },
+              {
+                label: "Aethersailor 规则 轻量版 Custom_Clash_Smart_Lite",
+                value:
+                  "https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/attic/Custom_Clash_Smart_Lite.ini",
+              },
+              {
+                label: "Aethersailor 规则 极简版(GFW) Custom_Clash_Smart_GFW",
+                value:
+                  "https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/attic/Custom_Clash_Smart_GFW.ini",
+              },
+              {
+                label: "Aethersailor 规则 重度分流版 Custom_Clash_Smart_Full",
+                value:
+                  "https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/attic/Custom_Clash_Smart_Full.ini",
+              },
+            ],
+          },
+        ],
       },
       form: {
         sourceSubUrl: "",
@@ -314,11 +695,11 @@ export default {
         excludeRemarks: "",
         includeRemarks: "",
         filename: "",
-        emoji: true,
+        emoji: false,
         nodeList: false,
         extraset: false,
         sort: false,
-        udp: false,
+        udp: true,
         tfo: false,
         scv: true,
         fdn: false,
@@ -330,12 +711,12 @@ export default {
         // tpl 定制功能
         tpl: {
           surge: {
-            doh: false // dns 查询是否使用 DoH
+            doh: false, // dns 查询是否使用 DoH
           },
           clash: {
-            doh: false
-          }
-        }
+            doh: false,
+          },
+        },
       },
 
       customParams: [],
@@ -357,16 +738,18 @@ export default {
     };
   },
   created() {
-    document.title = "Subscription Converter";
+    document.title = "订阅转换";
     this.isPC = this.$getOS().isPc;
 
     // 获取 url cache
-    if (process.env.VUE_APP_USE_STORAGE === 'true') {
-      this.form.sourceSubUrl = this.getLocalStorageItem('sourceSubUrl')
+    if (process.env.VUE_APP_USE_STORAGE === "true") {
+      this.form.sourceSubUrl = this.getLocalStorageItem("sourceSubUrl");
     }
   },
   mounted() {
     this.form.clientType = "clash";
+    this.form.customBackend = "https://api.wcc.best/sub?";
+    this.form.remoteConfig = "https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/Custom_Clash.ini";
     this.notify();
     this.getBackendVersion();
   },
@@ -392,11 +775,11 @@ export default {
       const url = "clash://install-config?url=";
       window.open(
         url +
-        encodeURIComponent(
-          this.curtomShortSubUrl !== ""
-            ? this.curtomShortSubUrl
-            : this.customSubUrl
-        )
+          encodeURIComponent(
+            this.curtomShortSubUrl !== ""
+              ? this.curtomShortSubUrl
+              : this.customSubUrl
+          )
       );
     },
     surgeInstall() {
@@ -408,11 +791,11 @@ export default {
       const url = "surge://install-config?url=";
       window.open(url + this.customSubUrl);
     },
-    addCustomParam(){
+    addCustomParam() {
       this.customParams.push({
         name: "",
         value: "",
-      })
+      });
     },
     makeUrl() {
       if (this.form.sourceSubUrl === "" || this.form.clientType === "") {
@@ -476,7 +859,7 @@ export default {
           this.form.sort.toString();
 
         if (this.needUdp) {
-          this.customSubUrl += "&udp=" + this.form.udp.toString()
+          this.customSubUrl += "&udp=" + this.form.udp.toString();
         }
 
         if (this.form.tpl.surge.doh === true) {
@@ -491,9 +874,13 @@ export default {
           this.customSubUrl += "&new_name=" + this.form.new_name.toString();
         }
 
-        this.customParams.filter(param => param.name && param.value).forEach(param => {
-          this.customSubUrl += `&${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`
-        })
+        this.customParams
+          .filter((param) => param.name && param.value)
+          .forEach((param) => {
+            this.customSubUrl += `&${encodeURIComponent(
+              param.name
+            )}=${encodeURIComponent(param.value)}`;
+          });
       }
 
       this.$copyText(this.customSubUrl);
@@ -513,10 +900,10 @@ export default {
       this.$axios
         .post(shortUrlBackend, data, {
           header: {
-            "Content-Type": "application/form-data; charset=utf-8"
-          }
+            "Content-Type": "application/form-data; charset=utf-8",
+          },
         })
-        .then(res => {
+        .then((res) => {
           if (res.data.Code === 1 && res.data.ShortUrl !== "") {
             this.curtomShortSubUrl = res.data.ShortUrl;
             this.$copyText(res.data.ShortUrl);
@@ -536,13 +923,13 @@ export default {
       const h = this.$createElement;
 
       this.$notify({
-        title: "隐私提示",
-        type: "warning",
+        title: "提示",
+        type: "info",
         message: h(
           "i",
           { style: "color: teal" },
           "各种订阅链接（短链接服务除外）生成纯前端实现，无隐私问题。默认提供后端转换服务，隐私担忧者请自行搭建后端服务。"
-        )
+        ),
       });
     },
     confirmUploadConfig() {
@@ -555,22 +942,24 @@ export default {
 
       let body = {
         content: this.uploadConfig,
-      }
-      this.$axios.post(configUploadBackend, body).then(res => {
-        if (res.data.code === 0 && res.data.data.url !== "") {
-          this.$message.success(
-            "远程配置上传成功，配置链接已复制到剪贴板，有效期三个月望知悉"
-          );
+      };
+      this.$axios
+        .post(configUploadBackend, body)
+        .then((res) => {
+          if (res.data.code === 0 && res.data.data.url !== "") {
+            this.$message.success(
+              "远程配置上传成功，配置链接已复制到剪贴板，有效期三个月望知悉"
+            );
 
-          // 自动填充至『表单-远程配置』
-          this.form.remoteConfig = res.data.data.url;
-          this.$copyText(this.form.remoteConfig);
+            // 自动填充至『表单-远程配置』
+            this.form.remoteConfig = res.data.data.url;
+            this.$copyText(this.form.remoteConfig);
 
-          this.dialogUploadConfigVisible = false;
-        } else {
-          this.$message.error("远程配置上传失败: " + res.data.msg);
-        }
-      })
+            this.dialogUploadConfigVisible = false;
+          } else {
+            this.$message.error("远程配置上传失败: " + res.data.msg);
+          }
+        })
         .catch(() => {
           this.$message.error("远程配置上传失败");
         })
@@ -579,10 +968,10 @@ export default {
         });
     },
     /**
- * Asynchronously analyzes the URL.
- *
- * @return {Promise<string>} The result of the analysis.
- */
+     * Asynchronously analyzes the URL.
+     *
+     * @return {Promise<string>} The result of the analysis.
+     */
     async analyzeUrl() {
       // Check if `loadConfig` includes "target"
       if (this.loadConfig.includes("target")) {
@@ -636,12 +1025,12 @@ export default {
           const params = new URLSearchParams(url.search);
 
           // Record parameters have been read
-          const getParam = params.get.bind(params)
-          const excludeParams = new Set()
-          params.get = key => {
-            excludeParams.add(key)
-            return getParam(key)
-          }
+          const getParam = params.get.bind(params);
+          const excludeParams = new Set();
+          params.get = (key) => {
+            excludeParams.add(key);
+            return getParam(key);
+          };
 
           // Get the 'target' parameter
           const target = params.get("target");
@@ -675,11 +1064,12 @@ export default {
           this.form.new_name = params.get("new_name") === "true";
 
           // Filter custom parameters
-          this.customParams = Array.from(params
-            .entries()
-            .filter(e => !excludeParams.has(e[0]))
-            .map(e => ({ name: e[0], value: e[1] }))
-          )
+          this.customParams = Array.from(
+            params
+              .entries()
+              .filter((e) => !excludeParams.has(e[0]))
+              .map((e) => ({ name: e[0], value: e[1] }))
+          );
 
           // Hide the configuration dialog
           this.dialogLoadConfigVisible = false;
@@ -703,7 +1093,7 @@ export default {
       cb(results);
     },
     createFilter(queryString) {
-      return candidate => {
+      return (candidate) => {
         return (
           candidate.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0
         );
@@ -714,44 +1104,44 @@ export default {
         .get(
           defaultBackend.substring(0, defaultBackend.length - 5) + "/version"
         )
-        .then(res => {
+        .then((res) => {
           this.backendVersion = res.data.replace(/backend\n$/gm, "");
           this.backendVersion = this.backendVersion.replace("subconverter", "");
         });
     },
     saveSubUrl() {
-      if (this.form.sourceSubUrl !== '') {
-        this.setLocalStorageItem('sourceSubUrl', this.form.sourceSubUrl)
+      if (this.form.sourceSubUrl !== "") {
+        this.setLocalStorageItem("sourceSubUrl", this.form.sourceSubUrl);
       }
     },
     getLocalStorageItem(itemKey) {
-      const now = +new Date()
-      let ls = localStorage.getItem(itemKey)
+      const now = +new Date();
+      let ls = localStorage.getItem(itemKey);
 
-      let itemValue = ''
+      let itemValue = "";
       if (ls !== null) {
-        let data = JSON.parse(ls)
+        let data = JSON.parse(ls);
         if (data.expire > now) {
-          itemValue = data.value
+          itemValue = data.value;
         } else {
-          localStorage.removeItem(itemKey)
+          localStorage.removeItem(itemKey);
         }
       }
 
-      return itemValue
+      return itemValue;
     },
     setLocalStorageItem(itemKey, itemValue) {
-      const ttl = process.env.VUE_APP_CACHE_TTL
-      const now = +new Date()
+      const ttl = process.env.VUE_APP_CACHE_TTL;
+      const now = +new Date();
 
       let data = {
         setTime: now,
         ttl: parseInt(ttl),
         expire: now + ttl * 1000,
-        value: itemValue
-      }
-      localStorage.setItem(itemKey, JSON.stringify(data))
-    }
+        value: itemValue,
+      };
+      localStorage.setItem(itemKey, JSON.stringify(data));
+    },
   },
 };
 </script>
