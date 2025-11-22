@@ -7,7 +7,7 @@
             订阅转换
 
             <div style="display: inline-block; position: absolute; right: 20px">
-              {{ backendVersion }} 
+              {{ backendVersion }}
             </div>
           </div>
           <el-container>
@@ -41,48 +41,48 @@
                 </el-select>
               </el-form-item>
 
-                <el-form-item label="后端地址:">
-                  <el-select
-                    v-model="form.customBackend"
-                    :fetch-suggestions="backendSearch"
-                    style="width: 100%"
+              <el-form-item label="后端地址:">
+                <el-select
+                  v-model="form.customBackend"
+                  :fetch-suggestions="backendSearch"
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="item in options.backendOptions"
+                    :key="item.label"
+                    :label="item.label"
+                    :value="item.value"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="订阅转换规则:">
+                <el-select
+                  v-model="form.remoteConfig"
+                  allow-create
+                  filterable
+                  placeholder="请选择"
+                  style="width: 100%"
+                >
+                  <el-option-group
+                    v-for="group in options.remoteConfig"
+                    :key="group.label"
+                    :label="group.label"
                   >
                     <el-option
-                      v-for="item in options.backendOptions"
-                      :key="item.label"
+                      v-for="item in group.options"
+                      :key="item.value"
                       :label="item.label"
                       :value="item.value"
                     ></el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item label="订阅转换规则:">
-                  <el-select
-                    v-model="form.remoteConfig"
-                    allow-create
-                    filterable
-                    placeholder="请选择"
-                    style="width: 100%"
+                  </el-option-group>
+                  <el-button
+                    slot="append"
+                    @click="gotoRemoteConfig"
+                    icon="el-icon-link"
+                    >配置示例</el-button
                   >
-                    <el-option-group
-                      v-for="group in options.remoteConfig"
-                      :key="group.label"
-                      :label="group.label"
-                    >
-                      <el-option
-                        v-for="item in group.options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                      ></el-option>
-                    </el-option-group>
-                    <el-button
-                      slot="append"
-                      @click="gotoRemoteConfig"
-                      icon="el-icon-link"
-                      >配置示例</el-button
-                    >
-                  </el-select>
-                </el-form-item>
+                </el-select>
+              </el-form-item>
               <div v-if="advanced === '2'">
                 <el-form-item label="筛选节点:">
                   <el-input
@@ -416,41 +416,45 @@ export default {
       options: {
         clientTypes: {
           Clash: "clash",
-          Surge: "surge&ver=4",
+          ClashR: "clashr",
           Quantumult: "quan",
           QuantumultX: "quanx",
-          Mellow: "mellow",
-          Surfboard: "surfboard",
           Loon: "loon",
-          singbox: "singbox",
-          ss: "ss",
-          ssd: "ssd",
-          sssub: "sssub",
-          ssr: "ssr",
-          ClashR: "clashr",
-          V2Ray: "v2ray",
-          Trojan: "trojan",
+          Mellow: "mellow",
+          SS: "ss",
+          SSAndroid: "sssub",
+          SSD: "ssd",
+          SSR: "ssr",
+          Surfboard: "surfboard",
+          Surge2: "surge&ver=2",
           Surge3: "surge&ver=3",
+          Surge4: "surge&ver=4",
+          Trojan: "trojan",
+          V2Ray: "v2ray",
         },
         backendOptions: [
           {
-            label: "api.wcc.best(sub-web作者提供)",
-            value: "https://api.wcc.best/sub?",
-          },
-          {
             label: "sub.xeton.dev(subconverter作者提供)",
             value: "https://sub.xeton.dev/sub?",
-          },
-          {
-            label: "api.dler.io(lhie1提供)",
-            value: "https://api.dler.io/sub?",
           },
           {
             label: "api.asailor.org(Aethersailor提供)",
             value: "https://api.asailor.org/sub?",
           },
           {
-            label: "localhost(本地后端)",
+            label: "api.wcc.best(sub-web作者提供)",
+            value: "https://api.wcc.best/sub?",
+          },
+          {
+            label: "api.dler.io(lhie1提供)",
+            value: "https://api.dler.io/sub?",
+          },
+          {
+            label: "sub.suidx.com(本站提供)",
+            value: "https://sub.suidx.com/sub?",
+          },
+          {
+            label: "localhost(本地后端-需自行搭建)",
             value: "https://localhost:25500/sub?",
           },
         ],
@@ -467,6 +471,61 @@ export default {
                 label: "Urltest",
                 value:
                   "https://raw.githubusercontent.com//SleepyHeeead/subconverter-config/master/remote-config/universal/urltest.ini",
+              },
+            ],
+          },
+          {
+            label: "Customized",
+            options: [
+              {
+                label: "Maying",
+                value:
+                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/customized/maying.ini",
+              },
+              {
+                label: "Ytoo",
+                value:
+                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/customized/ytoo.ini",
+              },
+              {
+                label: "FlowerCloud",
+                value:
+                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/customized/flowercloud.ini",
+              },
+              {
+                label: "Nexitally",
+                value:
+                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/customized/nexitally.ini",
+              },
+              {
+                label: "SoCloud",
+                value:
+                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/customized/socloud.ini",
+              },
+              {
+                label: "ARK",
+                value:
+                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/customized/ark.ini",
+              },
+              {
+                label: "ssrCloud",
+                value:
+                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/customized/ssrcloud.ini",
+              },
+            ],
+          },
+          {
+            label: "Special",
+            options: [
+              {
+                label: "NeteaseUnblock(仅规则，No-Urltest)",
+                value:
+                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/special/netease.ini",
+              },
+              {
+                label: "Basic(仅GEOIP CN + Final)",
+                value:
+                  "https://cdn.jsdelivr.net/gh/SleepyHeeead/subconverter-config@master/remote-config/special/basic.ini",
               },
             ],
           },
@@ -748,8 +807,9 @@ export default {
   },
   mounted() {
     this.form.clientType = "clash";
-    this.form.customBackend = "https://api.wcc.best/sub?";
-    this.form.remoteConfig = "https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/Custom_Clash.ini";
+    this.form.customBackend = "https://sub.xeton.dev/sub?";
+    this.form.remoteConfig =
+      "https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/Custom_Clash.ini";
     this.notify();
     this.getBackendVersion();
   },
@@ -928,7 +988,7 @@ export default {
         message: h(
           "i",
           { style: "color: teal" },
-          "各种订阅链接（短链接服务除外）生成纯前端实现，无隐私问题。默认提供后端转换服务，隐私担忧者请自行搭建后端服务。"
+          "如果遇到订阅更新失败请尝试切换后端地址，订阅转换后端有隐私泄露风险，建议自行搭建本地后端。"
         ),
       });
     },

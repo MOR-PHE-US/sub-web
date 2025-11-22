@@ -12,7 +12,7 @@ const routes = [
 ];
 
 const router = new VueRouter({
-  mode: "history",
+  mode: "hash",          // ⚡ 改成 hash 模式
   base: process.env.BASE_URL,
   routes
 });
