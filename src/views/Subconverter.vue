@@ -7,7 +7,7 @@
             订阅转换
 
             <div style="display: inline-block; position: absolute; right: 20px">
-              {{ backendVersion }}
+              <a href="https://github.com/tindy2013/subconverter" target="_blank">{{ backendVersion }}</a>
             </div>
           </div>
           <el-container>
@@ -417,20 +417,19 @@ export default {
         clientTypes: {
           Clash: "clash",
           ClashR: "clashr",
-          Quantumult: "quan",
-          QuantumultX: "quanx",
-          Loon: "loon",
+          Surge: "surge",
+          Quan: "quan",
+          Quanx: "quanx",
           Mellow: "mellow",
-          SS: "ss",
-          SSAndroid: "sssub",
-          SSD: "ssd",
-          SSR: "ssr",
           Surfboard: "surfboard",
-          Surge2: "surge&ver=2",
-          Surge3: "surge&ver=3",
-          Surge4: "surge&ver=4",
-          Trojan: "trojan",
+          Loon: "loon",
+          SingBox: "singbox",
+          SS: "ss",
+          SSD: "ssd",
+          SSSub: "sssub",
+          SSR: "ssr",
           V2Ray: "v2ray",
+          Trojan: "trojan",
         },
         backendOptions: [
           {
@@ -450,12 +449,8 @@ export default {
             value: "https://api.dler.io/sub?",
           },
           {
-            label: "sub.suidx.com(本站提供)",
-            value: "https://sub.suidx.com/sub?",
-          },
-          {
             label: "localhost(本地后端-需自行搭建)",
-            value: "https://localhost:25500/sub?",
+            value: "http://localhost:25500/sub?",
           },
         ],
         remoteConfig: [
