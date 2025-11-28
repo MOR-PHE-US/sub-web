@@ -453,7 +453,7 @@ export default {
             value: "https://api.dler.io/sub?",
           },
           {
-            label: "api.suidx.com(本站后端)",
+            label: "api.suidx.com(本站后端【支持AnyTLS、VLESS】)",
             value: "https://api.suidx.com/sub?",
           },
           {
@@ -810,7 +810,7 @@ export default {
   },
   mounted() {
     this.form.clientType = "clash";
-    this.form.customBackend = "http://localhost:25500/sub?";
+    this.form.customBackend = "https://api.suidx.com/sub?";
     this.form.remoteConfig =
       "https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/Custom_Clash.ini";
     this.confirm();
