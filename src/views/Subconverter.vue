@@ -453,6 +453,10 @@ export default {
             value: "https://api.dler.io/sub?",
           },
           {
+            label: "api.suidx.com(本站后端)",
+            value: "https://api.suidx.com/sub?",
+          },
+          {
             label: "localhost(本地后端-需自行搭建)",
             value: "http://localhost:25500/sub?",
           },
