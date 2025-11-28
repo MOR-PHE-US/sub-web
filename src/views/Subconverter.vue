@@ -7,7 +7,11 @@
             订阅转换
 
             <div style="display: inline-block; position: absolute; right: 20px">
-              <a href="https://github.com/tindy2013/subconverter" target="_blank">{{ backendVersion }}</a>
+              <a
+                href="https://github.com/tindy2013/subconverter"
+                target="_blank"
+                >{{ backendVersion }}</a
+              >
             </div>
           </div>
           <el-container>
@@ -55,35 +59,35 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="订阅转换规则:">
-                <el-select
-                  v-model="form.remoteConfig"
-                  allow-create
-                  filterable
-                  placeholder="请选择"
-                  style="width: 100%"
-                >
-                  <el-option-group
-                    v-for="group in options.remoteConfig"
-                    :key="group.label"
-                    :label="group.label"
-                  >
-                    <el-option
-                      v-for="item in group.options"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    ></el-option>
-                  </el-option-group>
-                  <el-button
-                    slot="append"
-                    @click="gotoRemoteConfig"
-                    icon="el-icon-link"
-                    >配置示例</el-button
-                  >
-                </el-select>
-              </el-form-item>
               <div v-if="advanced === '2'">
+                <el-form-item label="订阅转换规则:">
+                  <el-select
+                    v-model="form.remoteConfig"
+                    allow-create
+                    filterable
+                    placeholder="请选择"
+                    style="width: 100%"
+                  >
+                    <el-option-group
+                      v-for="group in options.remoteConfig"
+                      :key="group.label"
+                      :label="group.label"
+                    >
+                      <el-option
+                        v-for="item in group.options"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                      ></el-option>
+                    </el-option-group>
+                    <el-button
+                      slot="append"
+                      @click="gotoRemoteConfig"
+                      icon="el-icon-link"
+                      >配置示例</el-button
+                    >
+                  </el-select>
+                </el-form-item>
                 <el-form-item label="筛选节点:">
                   <el-input
                     v-model="form.includeRemarks"
@@ -408,7 +412,7 @@ export default {
   data() {
     return {
       backendVersion: "",
-      advanced: "1",
+      advanced: "2",
 
       // 是否为 PC 端
       isPC: true,
@@ -802,10 +806,10 @@ export default {
   },
   mounted() {
     this.form.clientType = "clash";
-    this.form.customBackend = "https://sub.xeton.dev/sub?";
+    this.form.customBackend = "http://localhost:25500/sub?";
     this.form.remoteConfig =
       "https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/Custom_Clash.ini";
-    this.notify();
+    this.confirm();
     this.getBackendVersion();
   },
   methods: {
@@ -974,18 +978,26 @@ export default {
           this.loading = false;
         });
     },
-    notify() {
+    confirm() {
       const h = this.$createElement;
 
-      this.$notify({
-        title: "提示",
-        type: "info",
-        message: h(
-          "i",
-          { style: "color: teal" },
-          "如果遇到订阅更新失败请尝试切换后端地址，订阅转换后端有隐私泄露风险，建议自行搭建本地后端。"
-        ),
-      });
+      this.$confirm(
+        h("div", [
+          h(
+            "p",
+            { style: "color: teal; margin: 0;" },
+            "❗使用他人搭建的后端有隐私泄露风险"
+          ),
+          h("p", { style: "color: teal; margin: 0;" }, "❗建议自行搭建本地后端"),
+        ]),
+        "提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "Yes",
+          type: "info",
+          dangerouslyUseHTMLString: false, // 如果要渲染HTML内容可改为 true
+        }
+      );
     },
     confirmUploadConfig() {
       if (this.uploadConfig === "") {
